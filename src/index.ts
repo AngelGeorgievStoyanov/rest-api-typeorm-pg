@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import { AppDataSource } from "./data-source";
+import authController from "./controllers/authController";
 
 const app = express();
 const PORT = 8080;
@@ -22,6 +23,8 @@ app.use(
 );
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.raw({ limit: "50mb", inflate: true }));
+
+app.use("/auth", authController());
 
 
 AppDataSource.initialize()
