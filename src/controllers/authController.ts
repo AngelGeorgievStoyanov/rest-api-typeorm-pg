@@ -2,6 +2,9 @@ import express from "express";
 import { body, validationResult } from "express-validator";
 import { User } from "../entity/User";
 import { create, findByEmail } from "../services/userService";
+import { AppDataSource } from "../data-source";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const secret = "top secret!";
 
@@ -34,13 +37,55 @@ export default function authController() {
 
         const { email, firstName, lastName, password } = req.body;
         const user: User = await create(email, firstName, lastName, password);
-        res.status(201).json(user);
+        const token = createToken(user);
+        res.status(201).json(token);
       } catch (err) {
         console.error(err.message);
         res.status(400).json({ error: err.message });
       }
     }
   );
+  router.post("/login", async (req, res) => {
+    try {
+      const userRepository = AppDataSource.getRepository(User);
+      const user = await userRepository.findOne({
+        where: { email: req.body.email },
+      });
+
+      if (!user) {
+        console.log(req.body.email);
+        throw new Error("Incorrect email or password");
+      }
+
+      const match = await bcrypt.compare(
+        req.body.password,
+        user.hashedPassword
+      );
+
+      if (!match) {
+        throw new Error("Incorrect email or password");
+      }
+
+      const token = createToken(user);
+      res.status(200).json(token);
+    } catch (err) {
+      console.log(err.message);
+      res.status(401).json(err.message);
+    }
+  });
 
   return router;
+}
+
+function createToken(user: User) {
+  const payload = {
+    _id: user._id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+  };
+
+  return {
+    accessToken: jwt.sign(payload, secret),
+  };
 }
