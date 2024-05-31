@@ -1,3 +1,4 @@
+import { IsNull, Not } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { Note } from "../entity/Note";
 import { User } from "../entity/User";
@@ -21,4 +22,44 @@ export async function create(noteData: Note, ownerId: string): Promise<Note> {
   } catch (err) {
     throw new Error(err.message);
   }
+}
+
+export async function getAllNotesByOwnerId(
+  ownerId: string,
+  page: number,
+  pageSize: number,
+  sortOrder: string
+): Promise<{ totalCount: number; notes: Note[] }> {
+  const noteRepository = AppDataSource.getRepository(Note);
+  const [field, direction] = sortOrder.split("_");
+
+  let sortField: keyof Note = "createdAt";
+  switch (field) {
+    case "created":
+      sortField = "createdAt";
+      break;
+    case "edited":
+      sortField = "editedAt";
+      break;
+    case "completed":
+      sortField = "completedAt";
+      break;
+    default:
+      sortField = "createdAt";
+      break;
+  }
+  const sortDirection: "ASC" | "DESC" = direction === "asc" ? "ASC" : "DESC";
+  const filterCondition =
+    field === "edited" || field === "completed"
+      ? { [sortField]: Not(IsNull()) }
+      : {};
+
+  const [notes, totalCount] = await noteRepository.findAndCount({
+    where: { _owner: { _id: ownerId }, ...filterCondition },
+    order: { [sortField]: sortDirection },
+    skip: page * pageSize,
+    take: pageSize,
+  });
+
+  return { totalCount, notes };
 }
