@@ -1,6 +1,7 @@
-import "reflect-metadata"
+import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "./entity/User";
+import { Note } from "./entity/Note";
 
 // Database connection configuration variables.
 // In production environment, these values should be set via .env file.
@@ -22,7 +23,7 @@ export const AppDataSource = new DataSource({
   database: DB,
   synchronize: true,
   logging: true,
-  entities: [User],
+  entities: [User, Note],
   subscribers: [],
   migrations: [],
 });

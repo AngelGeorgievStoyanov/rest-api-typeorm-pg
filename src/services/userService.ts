@@ -26,7 +26,7 @@ export async function create(
   try {
     const savedUser = await userRepository.save(user);
     return savedUser;
-  } catch (error) {
-    throw new Error(error.message);
+  } catch (err) {
+    throw new Error(err.message);
   }
 }
