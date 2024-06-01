@@ -2,6 +2,7 @@ import express from "express";
 import { Note } from "../entity/Note";
 import {
   create,
+  deleteNoteById,
   getAllNotesByOwnerId,
   getNoteById,
   updateNoteById,
@@ -56,18 +57,30 @@ export default function noteController() {
       res.status(400).json(err.message);
     }
   });
- 
+
   router.post("/update/:noteId", async (req, res) => {
     const noteId = req.params.noteId;
     const userId = req.body._ownerId;
     const note = req.body.data;
     try {
-      const updatedNote = await updateNoteById( note, noteId);
+      const updatedNote = await updateNoteById(note, noteId);
       res.status(200).json(updatedNote);
     } catch (err) {
       console.log(err.message);
       res.status(400).json(err.message);
     }
   });
+
+  router.delete("/delete/:noteId", async (req, res) => {
+    const noteId = req.params.noteId;
+    try {
+      const deletedNote = await deleteNoteById(noteId);
+      res.status(200).json(deletedNote);
+    } catch (err) {
+      console.log(err.message);
+      res.status(400).json(err.message);
+    }
+  });
+
   return router;
 }

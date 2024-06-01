@@ -102,3 +102,17 @@ export async function updateNoteById(
     throw new Error(err.message);
   }
 }
+
+export async function deleteNoteById(noteId: string): Promise<Note> {
+  const noteRepository = AppDataSource.getRepository(Note);
+  try {
+    const existingNote = await noteRepository.findOneBy({ _id: noteId });
+    if (!existingNote) {
+      throw new Error("Note not found");
+    }
+    await noteRepository.remove(existingNote);
+    return existingNote;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
