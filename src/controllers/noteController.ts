@@ -11,11 +11,14 @@ import {
   updateNoteById,
 } from "../services/noteService";
 import { authenticateToken } from "../middleware/jwt.middleware";
+import { trimBody } from "../middleware/trim.body.middleware";
 
 export default function noteController() {
   const router = express.Router();
 
   router.use(authenticateToken);
+
+  router.use(trimBody);
 
   router.post("/create", async (req, res) => {
     try {

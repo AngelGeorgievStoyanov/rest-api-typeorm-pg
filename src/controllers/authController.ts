@@ -5,11 +5,14 @@ import { create, findByEmail } from "../services/userService";
 import { AppDataSource } from "../data-source";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { trimBody } from "../middleware/trim.body.middleware";
 
 export const secret = "top secret!";
 
 export default function authController() {
   const router = express.Router();
+
+  router.use(trimBody);
 
   router.post(
     "/register",
