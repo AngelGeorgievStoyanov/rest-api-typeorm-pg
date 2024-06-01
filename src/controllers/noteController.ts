@@ -1,11 +1,12 @@
 import express from "express";
 import { Note } from "../entity/Note";
 import {
-    completedNoteById,
+  completedNoteById,
   create,
   deleteNoteById,
   getAllNotesByOwnerId,
   getNoteById,
+  markTableNotesAsCompleted,
   updateNoteById,
 } from "../services/noteService";
 
@@ -89,6 +90,27 @@ export default function noteController() {
     try {
       const updatedNote = await completedNoteById(note, noteId);
       res.status(200).json(updatedNote);
+    } catch (err) {
+      console.log(err.message);
+      res.status(400).json(err.message);
+    }
+  });
+
+  router.post("/tableCompleted", async (req, res) => {
+    const notes = req.body.data;
+    const page = Number(req.body.paginationAndSorting.page);
+    const pageSize = Number(req.body.paginationAndSorting.pageSize);
+    const sortOrder = req.body.paginationAndSorting.sortOrder;
+    const userId = req.body.data[0]._ownerId;
+    try {
+      const updatedNotes = await markTableNotesAsCompleted(
+        notes,
+        userId,
+        page,
+        pageSize,
+        sortOrder
+      );
+      res.status(200).json(updatedNotes);
     } catch (err) {
       console.log(err.message);
       res.status(400).json(err.message);
