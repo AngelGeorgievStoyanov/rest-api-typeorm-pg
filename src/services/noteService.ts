@@ -116,3 +116,26 @@ export async function deleteNoteById(noteId: string): Promise<Note> {
     throw new Error(err.message);
   }
 }
+
+export async function completedNoteById(
+  note: Note,
+  noteId: string
+): Promise<Note> {
+  const noteRepository = AppDataSource.getRepository(Note);
+  try {
+    const existingNote = await noteRepository.findOneBy({ _id: noteId });
+    if (!existingNote) {
+      throw new Error("Note not found");
+    }
+
+    existingNote.completedAt = note.completed ? null : new Date().toISOString();
+
+    existingNote.completed = !note.completed;
+
+    await noteRepository.save(existingNote);
+
+    return existingNote;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
