@@ -63,3 +63,42 @@ export async function getAllNotesByOwnerId(
 
   return { totalCount, notes };
 }
+
+export async function getNoteById(noteId: string): Promise<Note[]> {
+  const noteRepository = AppDataSource.getRepository(Note);
+  try {
+    const note = await noteRepository.findBy({ _id: noteId });
+    return note;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+export async function updateNoteById(
+  note: Note,
+  noteId: string
+): Promise<Note> {
+  const noteRepository = AppDataSource.getRepository(Note);
+  try {
+    const existingNote = await noteRepository.findOneBy({ _id: noteId });
+    if (!existingNote) {
+      throw new Error("Note not found");
+    }
+
+    if (note.title !== undefined) {
+    }
+    existingNote.title = note.title;
+
+    if (note.content !== undefined) {
+    }
+    existingNote.content = note.content;
+
+    existingNote.editedAt = new Date().toISOString();
+
+    await noteRepository.save(existingNote);
+
+    return existingNote;
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
