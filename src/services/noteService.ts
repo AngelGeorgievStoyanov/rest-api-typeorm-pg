@@ -169,3 +169,28 @@ export async function markTableNotesAsCompleted(
     throw new Error(err.message);
   }
 }
+
+export async function deleteNotesFromTable(
+    ids: string[],
+    ownerId: string,
+    page: number,
+    pageSize: number,
+    sortOrder: string
+  ): Promise<{ totalCount: number; notes: Note[] }> {
+    const noteRepository = AppDataSource.getRepository(Note);
+  
+    try {
+     
+      await noteRepository.createQueryBuilder()
+        .delete()
+        .from(Note)
+        .whereInIds(ids)
+        .execute();
+  
+      const notesAndCount = await getAllNotesByOwnerId(ownerId, page, pageSize, sortOrder);
+  
+      return notesAndCount;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
