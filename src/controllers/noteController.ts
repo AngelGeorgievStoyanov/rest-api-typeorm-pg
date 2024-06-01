@@ -10,9 +10,12 @@ import {
   markTableNotesAsCompleted,
   updateNoteById,
 } from "../services/noteService";
+import { authenticateToken } from "../middleware/jwt.middleware";
 
 export default function noteController() {
   const router = express.Router();
+
+  router.use(authenticateToken);
 
   router.post("/create", async (req, res) => {
     try {
@@ -63,7 +66,6 @@ export default function noteController() {
 
   router.post("/update/:noteId", async (req, res) => {
     const noteId = req.params.noteId;
-    const userId = req.body._ownerId;
     const note = req.body.data;
     try {
       const updatedNote = await updateNoteById(note, noteId);
@@ -102,7 +104,7 @@ export default function noteController() {
     const page = Number(req.body.paginationAndSorting.page);
     const pageSize = Number(req.body.paginationAndSorting.pageSize);
     const sortOrder = req.body.paginationAndSorting.sortOrder;
-    const userId = req.body.data[0]._ownerId;
+    const userId = req["user"]["_id"];
     try {
       const updatedNotes = await markTableNotesAsCompleted(
         notes,
@@ -123,7 +125,7 @@ export default function noteController() {
     let page = Number(req.body.paginationAndSorting.page);
     const pageSize = Number(req.body.paginationAndSorting.pageSize);
     const sortOrder = req.body.paginationAndSorting.sortOrder;
-    const userId = req.body.data[0]._ownerId;
+    const userId = req["user"]["_id"];
 
     try {
       const result = await deleteNotesFromTable(
